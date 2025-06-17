@@ -1,83 +1,98 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState("");
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [status, setStatus] = useState('');
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("loading");
+    setStatus('Sending...');
 
     try {
-      const res = await axios.post(
-        "https://portfolio-backend-pdgu.onrender.com/api/contact",
-        formData
-      );
-
-      if (res.status === 200) {
-        setStatus("success");
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        setStatus("error");
-      }
-    } catch (err) {
-      console.error("Error sending message:", err);
-      setStatus("error");
+      const res = await axios.post('https://portfolio-backend-pdgu.onrender.com/api/messages', form);
+      setStatus(res.data.message);
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Error sending message:', error.message);
+      setStatus('Failed to send message');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-xl mx-auto">
-        <h1 className="text-4xl font-bold text-blue-700 mb-6">Contact Me</h1>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Your Email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          />
-          <textarea
-            name="message"
-            rows="5"
-            placeholder="Your Message"
-            required
-            value={formData.message}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          ></textarea>
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Contact Me</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Your Name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Your Email"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Subject</label>
+            <input
+              type="text"
+              name="subject"
+              value={form.subject}
+              onChange={handleChange}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Subject (Optional)"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Message</label>
+            <textarea
+              name="message"
+              value={form.message}
+              onChange={handleChange}
+              required
+              rows={5}
+              className="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Your Message"
+            ></textarea>
+          </div>
           <button
             type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-            disabled={status === "loading"}
+            className="w-full py-3 px-6 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300 font-semibold"
           >
-            {status === "loading" ? "Sending..." : "Send Message"}
+            Send Message
           </button>
+          {status && (
+            <p className="text-center mt-4 text-sm text-gray-700 font-medium">
+              {status}
+            </p>
+          )}
         </form>
-
-        {status === "success" && (
-          <p className="mt-4 text-green-600">Your message has been sent!</p>
-        )}
-        {status === "error" && (
-          <p className="mt-4 text-red-600">Something went wrong. Try again later.</p>
-        )}
       </div>
     </div>
   );
